@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { FileText, Calendar, Clock, User } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 interface LogEntry {
   time: string;
@@ -29,114 +29,192 @@ const ELDLogSheet: React.FC<ELDLogSheetProps> = ({
   totalDriving,
   totalOnDuty
 }) => {
+  // Generate hourly grid (24 hours)
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  
+  // Convert logs to grid format
+  const getStatusAtHour = (hour: number) => {
+    const timeString = `${hour.toString().padStart(2, '0')}:00`;
+    const log = logs.find(log => log.time === timeString);
+    return log?.status || null;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'driving': return 'bg-red-100 text-red-800 border-red-200';
-      case 'on-duty': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'sleeper': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'off-duty': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'driving': return 'bg-black';
+      case 'on-duty': return 'bg-red-600';
+      case 'sleeper': return 'bg-blue-600';
+      case 'off-duty': return 'bg-white border-gray-400';
+      default: return 'bg-gray-100';
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'driving': return 'Driving';
-      case 'on-duty': return 'On-Duty Not Driving';
-      case 'sleeper': return 'Sleeper Berth';
-      case 'off-duty': return 'Off Duty';
-      default: return status;
-    }
-  };
+  const renderGridRow = (label: string, status: string) => (
+    <div className="grid grid-cols-25 gap-0 border-b border-gray-400">
+      <div className="col-span-1 border-r border-gray-400 p-1 text-xs font-medium bg-gray-50 flex items-center">
+        {label}
+      </div>
+      {hours.map(hour => (
+        <div 
+          key={hour} 
+          className={`h-6 border-r border-gray-300 ${
+            getStatusAtHour(hour) === status ? getStatusColor(status) : 'bg-white'
+          }`}
+        />
+      ))}
+    </div>
+  );
 
   return (
-    <Card className="w-full">
-      <CardHeader className="bg-gradient-to-r from-trucking-600 to-trucking-700 text-white">
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Daily ELD Log Sheet - {date}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6">
-        {/* Header Information */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-gray-600" />
-            <div>
-              <div className="text-sm text-gray-600">Driver</div>
-              <div className="font-medium">{driverName}</div>
-            </div>
+    <div className="w-full max-w-6xl mx-auto bg-white border-2 border-black p-4 text-sm font-mono">
+      {/* Header */}
+      <div className="text-center mb-4">
+        <h1 className="text-lg font-bold">Driver's Daily Log</h1>
+        <div className="grid grid-cols-4 gap-4 mt-2">
+          <div>
+            <span className="font-bold">Date:</span> {date}
           </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-600" />
-            <div>
-              <div className="text-sm text-gray-600">Date</div>
-              <div className="font-medium">{date}</div>
-            </div>
+          <div>
+            <span className="font-bold">From:</span> ________________
           </div>
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-gray-600" />
-            <div>
-              <div className="text-sm text-gray-600">Truck #</div>
-              <div className="font-medium">{truckNumber}</div>
-            </div>
+          <div>
+            <span className="font-bold">To:</span> ________________
           </div>
+          <div>
+            <span className="font-bold">Driver:</span> {driverName}
+          </div>
+        </div>
+      </div>
+
+      {/* Mileage Section */}
+      <div className="grid grid-cols-4 gap-4 mb-4 p-2 border border-gray-400">
+        <div>
+          <div className="font-bold text-center">Total Miles Driving Today</div>
+          <div className="border border-gray-400 h-8 mt-1"></div>
+        </div>
+        <div>
+          <div className="font-bold text-center">Total Mileage Today</div>
+          <div className="border border-gray-400 h-8 mt-1"></div>
+        </div>
+        <div>
+          <div className="font-bold text-center">Name of Carrier or Carriers</div>
+          <div className="border border-gray-400 h-8 mt-1"></div>
+        </div>
+        <div>
+          <div className="font-bold text-center">Main Office Address</div>
+          <div className="border border-gray-400 h-8 mt-1"></div>
+        </div>
+      </div>
+
+      {/* Time Grid */}
+      <div className="mb-4">
+        {/* Hour headers */}
+        <div className="grid grid-cols-25 gap-0 mb-1">
+          <div className="col-span-1"></div>
+          {hours.map(hour => (
+            <div key={hour} className="text-xs text-center font-bold">
+              {hour.toString().padStart(2, '0')}
+            </div>
+          ))}
+        </div>
+        
+        {/* Midnight row */}
+        <div className="grid grid-cols-25 gap-0 mb-2">
+          <div className="col-span-1 text-xs">Mid.</div>
+          {hours.map(hour => (
+            <div key={hour} className="text-xs text-center border-l border-gray-300">
+              {hour === 0 || hour === 12 ? '|' : ''}
+            </div>
+          ))}
         </div>
 
-        {/* Log Entries */}
-        <div className="space-y-3 mb-6">
-          <h4 className="font-medium text-gray-800 mb-3">Daily Activity Log</h4>
-          <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-50 p-3 border-b grid grid-cols-4 gap-4 text-sm font-medium text-gray-700">
-              <div>Time</div>
-              <div>Status</div>
-              <div>Location</div>
-              <div>Odometer</div>
-            </div>
-            {logs.map((log, index) => (
-              <div key={index} className="p-3 border-b last:border-b-0 grid grid-cols-4 gap-4 text-sm">
-                <div className="font-mono">{log.time}</div>
-                <div>
-                  <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(log.status)}`}>
-                    {getStatusLabel(log.status)}
-                  </span>
-                </div>
-                <div className="text-gray-700">{log.location}</div>
-                <div className="font-mono">{log.odometer.toLocaleString()}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Status rows */}
+        {renderGridRow('1. Off Duty', 'off-duty')}
+        {renderGridRow('2. Sleeper Berth', 'sleeper')}
+        {renderGridRow('3. Driving', 'driving')}
+        {renderGridRow('4. On Duty (Not Driving)', 'on-duty')}
+      </div>
 
-        {/* Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-trucking-50 rounded-lg border border-trucking-200">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-red-700">{totalDriving.toFixed(1)}</div>
-            <div className="text-sm text-red-600">Driving Hours</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-700">{totalOnDuty.toFixed(1)}</div>
-            <div className="text-sm text-yellow-600">On-Duty Hours</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-700">{(14 - totalOnDuty).toFixed(1)}</div>
-            <div className="text-sm text-blue-600">Hours Remaining</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-700">{(11 - totalDriving).toFixed(1)}</div>
-            <div className="text-sm text-green-600">Drive Time Left</div>
-          </div>
+      {/* Legend */}
+      <div className="grid grid-cols-4 gap-4 mb-4 text-xs">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-white border border-gray-400"></div>
+          <span>Off Duty</span>
         </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-blue-600"></div>
+          <span>Sleeper Berth</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-black"></div>
+          <span>Driving</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-red-600"></div>
+          <span>On Duty</span>
+        </div>
+      </div>
 
-        {/* Compliance Status */}
-        <div className="mt-4 p-3 rounded-lg bg-green-50 border border-green-200">
-          <div className="flex items-center gap-2 text-green-800">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="font-medium">Compliance Status: In compliance with HOS regulations</span>
+      {/* Remarks Section */}
+      <div className="mb-4">
+        <div className="font-bold mb-2">Remarks</div>
+        <div className="border border-gray-400 h-16 p-2">
+          {/* Remarks content */}
+        </div>
+      </div>
+
+      {/* Shipping Documents */}
+      <div className="mb-4">
+        <div className="font-bold mb-2">Shipping Documents:</div>
+        <div className="border border-gray-400 h-12 p-2">
+          <div className="text-xs">Bill of Lading No:</div>
+        </div>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="grid grid-cols-2 gap-4 text-xs">
+        <div>
+          <div className="mb-2">
+            <span className="font-bold">Driver's Signature:</span> _____________________
+          </div>
+          <div>
+            <span className="font-bold">Date:</span> ___________
           </div>
         </div>
-      </CardContent>
-    </Card>
+        <div>
+          <div className="mb-2">
+            <span className="font-bold">24 Hour Period:</span> From _______ To _______
+          </div>
+          <div>
+            <span className="font-bold">Total Hours:</span> ___________
+          </div>
+        </div>
+      </div>
+
+      {/* Hours Summary Table */}
+      <div className="mt-4 border border-gray-400">
+        <div className="grid grid-cols-8 gap-0 text-xs">
+          <div className="border-r border-gray-400 p-1 font-bold bg-gray-50">Daily Hours</div>
+          <div className="border-r border-gray-400 p-1 text-center">A. Total Hours</div>
+          <div className="border-r border-gray-400 p-1 text-center">B. Total Hours</div>
+          <div className="border-r border-gray-400 p-1 text-center">C. Total Hours</div>
+          <div className="border-r border-gray-400 p-1 text-center">Day Drivers</div>
+          <div className="border-r border-gray-400 p-1 text-center">A. Total</div>
+          <div className="border-r border-gray-400 p-1 text-center">B. Total</div>
+          <div className="p-1 text-center">C. Total</div>
+        </div>
+        <div className="grid grid-cols-8 gap-0 text-xs border-t border-gray-400">
+          <div className="border-r border-gray-400 p-1">Today</div>
+          <div className="border-r border-gray-400 p-1 text-center">{totalDriving.toFixed(1)}</div>
+          <div className="border-r border-gray-400 p-1 text-center">{totalOnDuty.toFixed(1)}</div>
+          <div className="border-r border-gray-400 p-1 text-center">8.0</div>
+          <div className="border-r border-gray-400 p-1 text-center">{totalDriving.toFixed(1)}</div>
+          <div className="border-r border-gray-400 p-1 text-center">{totalOnDuty.toFixed(1)}</div>
+          <div className="border-r border-gray-400 p-1 text-center">8.0</div>
+          <div className="p-1 text-center">consecutive</div>
+        </div>
+      </div>
+    </div>
   );
 };
 
