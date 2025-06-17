@@ -5,13 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { MapPin, Clock, Truck, Route } from 'lucide-react';
 import LocationCombobox from './LocationCombobox';
-
-interface TripData {
-  currentLocation: string;
-  pickupLocation: string;
-  dropoffLocation: string;
-  currentCycleUsed: number;
-}
+import { LocationFeature, TripData } from '@/types/types';
 
 interface TripPlanningFormProps {
   onSubmit: (data: TripData) => void;
@@ -20,9 +14,9 @@ interface TripPlanningFormProps {
 
 const TripPlanningForm: React.FC<TripPlanningFormProps> = ({ onSubmit, isLoading = false }) => {
   const [formData, setFormData] = useState<TripData>({
-    currentLocation: '',
-    pickupLocation: '',
-    dropoffLocation: '',
+    currentLocation: null,
+    pickupLocation: null,
+    dropoffLocation: null,
     currentCycleUsed: 0
   });
 
@@ -31,7 +25,7 @@ const TripPlanningForm: React.FC<TripPlanningFormProps> = ({ onSubmit, isLoading
     onSubmit(formData);
   };
 
-  const handleInputChange = (field: keyof TripData, value: string | number) => {
+  const handleInputChange = (field: keyof TripData, value: LocationFeature | number | null) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

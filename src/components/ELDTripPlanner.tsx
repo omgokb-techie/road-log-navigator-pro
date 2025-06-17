@@ -1,70 +1,34 @@
-
 import React, { useState } from 'react';
 import TripPlanningForm from './TripPlanningForm';
 import RouteMap from './RouteMap';
 import ELDLogSheet from './ELDLogSheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Truck, MapPin, FileText } from 'lucide-react';
-
-interface TripData {
-  currentLocation: string;
-  pickupLocation: string;
-  dropoffLocation: string;
-  currentCycleUsed: number;
-}
+import { TripData } from '@/types/types';
+import axios from 'axios';
 
 const ELDTripPlanner: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [tripData, setTripData] = useState<TripData | null>(null);
+  const [_, setTripData] = useState<TripData | null>(null);
   const [routeData, setRouteData] = useState<any>(null);
   const [logSheets, setLogSheets] = useState<any[]>([]);
 
   const handleTripSubmit = async (data: TripData) => {
     setIsLoading(true);
     setTripData(data);
-
-    // Simulate API call to generate route and logs
-    setTimeout(() => {
-      // Mock route data
-      const mockRoute = {
-        distance: 1250,
-        duration: 18.5,
-        fuelStops: [
-          { name: "Flying J Travel Center", location: "Springfield, IL", distanceFromStart: 485 },
-          { name: "Love's Travel Stop", location: "Oklahoma City, OK", distanceFromStart: 965 }
-        ],
-        restStops: [
-          { location: "Rest Area - I-70", type: 'break' as const, duration: 0.5, distanceFromStart: 250 },
-          { location: "Truck Stop - Kansas City", type: 'rest' as const, duration: 10, distanceFromStart: 750 }
-        ]
-      };
-
-      // Mock ELD log data
-      const mockLogs = [
-        {
-          date: new Date().toLocaleDateString(),
-          driverName: "John Doe",
-          truckNumber: "TRK001",
-          logs: [
-            { time: "06:00", status: 'on-duty' as const, location: data.currentLocation, odometer: 123456 },
-            { time: "07:00", status: 'driving' as const, location: "Highway Mile 15", odometer: 123471 },
-            { time: "11:00", status: 'on-duty' as const, location: data.pickupLocation, odometer: 123635 },
-            { time: "12:00", status: 'driving' as const, location: "Highway Mile 180", odometer: 123651 },
-            { time: "16:30", status: 'off-duty' as const, location: "Rest Stop", odometer: 123890 },
-            { time: "02:00", status: 'sleeper' as const, location: "Truck Stop", odometer: 123890 },
-            { time: "12:00", status: 'on-duty' as const, location: "Truck Stop", odometer: 123890 },
-            { time: "13:00", status: 'driving' as const, location: "Highway Mile 480", odometer: 123905 },
-            { time: "19:00", status: 'on-duty' as const, location: data.dropoffLocation, odometer: 124155 }
-          ],
-          totalDriving: 8.5,
-          totalOnDuty: 11.0
-        }
-      ];
-
-      setRouteData(mockRoute);
-      setLogSheets(mockLogs);
-      setIsLoading(false);
-    }, 2000);
+    try {
+      // Replace with your actual backend endpoint
+      const response = await axios.post('/api/trip-plan', data);
+      // Assuming response.data = { route: ..., logs: ... }
+      setRouteData(response.data.route);
+      setLogSheets(response.data.logs);
+    } catch (error) {
+      // Handle error (show toast, etc.)
+      setRouteData(null);
+      setLogSheets([]);
+      console.error('Failed to plan trip:', error);
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -129,7 +93,7 @@ const ELDTripPlanner: React.FC = () => {
 
         {/* Footer */}
         <footer className="text-center text-gray-500 text-sm py-8">
-          <p>© 2024 ELD Trip Planner - DOT Compliant Route Planning & Electronic Logging</p>
+          <p>© 2025 ELD Trip Planner - DOT Compliant Route Planning & Electronic Logging</p>
         </footer>
       </div>
     </div>
