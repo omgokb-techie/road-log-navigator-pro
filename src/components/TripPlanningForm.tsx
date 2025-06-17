@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { MapPin, Clock, Truck, Route } from 'lucide-react';
+import LocationCombobox from './LocationCombobox';
 
 interface TripData {
   currentLocation: string;
@@ -54,14 +54,11 @@ const TripPlanningForm: React.FC<TripPlanningFormProps> = ({ onSubmit, isLoading
                 <MapPin className="h-4 w-4 text-trucking-600" />
                 Current Location
               </Label>
-              <Input
-                id="currentLocation"
-                type="text"
-                placeholder="Enter current location"
+              <LocationCombobox
                 value={formData.currentLocation}
-                onChange={(e) => handleInputChange('currentLocation', e.target.value)}
-                className="border-trucking-200 focus:border-trucking-500"
-                required
+                onChange={(value) => handleInputChange('currentLocation', value)}
+                placeholder="Enter current location"
+                icon={<MapPin className="h-4 w-4 text-trucking-600" />}
               />
             </div>
 
@@ -90,14 +87,11 @@ const TripPlanningForm: React.FC<TripPlanningFormProps> = ({ onSubmit, isLoading
               <MapPin className="h-4 w-4 text-green-600" />
               Pickup Location
             </Label>
-            <Input
-              id="pickupLocation"
-              type="text"
-              placeholder="Enter pickup location"
+            <LocationCombobox
               value={formData.pickupLocation}
-              onChange={(e) => handleInputChange('pickupLocation', e.target.value)}
-              className="border-trucking-200 focus:border-trucking-500"
-              required
+              onChange={(value) => handleInputChange('pickupLocation', value)}
+              placeholder="Enter pickup location"
+              icon={<MapPin className="h-4 w-4 text-green-600" />}
             />
           </div>
 
@@ -106,14 +100,11 @@ const TripPlanningForm: React.FC<TripPlanningFormProps> = ({ onSubmit, isLoading
               <MapPin className="h-4 w-4 text-red-600" />
               Dropoff Location
             </Label>
-            <Input
-              id="dropoffLocation"
-              type="text"
-              placeholder="Enter dropoff location"
+            <LocationCombobox
               value={formData.dropoffLocation}
-              onChange={(e) => handleInputChange('dropoffLocation', e.target.value)}
-              className="border-trucking-200 focus:border-trucking-500"
-              required
+              onChange={(value) => handleInputChange('dropoffLocation', value)}
+              placeholder="Enter dropoff location"
+              icon={<MapPin className="h-4 w-4 text-red-600" />}
             />
           </div>
 
