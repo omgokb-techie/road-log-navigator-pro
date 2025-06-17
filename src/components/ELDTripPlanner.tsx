@@ -7,6 +7,8 @@ import { Truck, MapPin, FileText } from 'lucide-react';
 import { TripData } from '@/types/types';
 import axios from 'axios';
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const ELDTripPlanner: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [_, setTripData] = useState<TripData | null>(null);
@@ -18,7 +20,7 @@ const ELDTripPlanner: React.FC = () => {
     setTripData(data);
     try {
       // Replace with your actual backend endpoint
-      const response = await axios.post('/api/trip-plan', data);
+      const response = await axios.post(`${baseUrl}/api/trip-plan`, data);
       // Assuming response.data = { route: ..., logs: ... }
       setRouteData(response.data.route);
       setLogSheets(response.data.logs);
