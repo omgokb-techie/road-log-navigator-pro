@@ -20,7 +20,7 @@ const ELDTripPlanner: React.FC = () => {
     setTripData(data);
     try {
       // Replace with your actual backend endpoint
-      const response = await axios.post(`${baseUrl}/api/trip-plan`, data);
+      const response = await axios.post(`${baseUrl}/api/trip/route/`, data);
       // Assuming response.data = { route: ..., logs: ... }
       setRouteData(response.data.route);
       setLogSheets(response.data.logs);
@@ -57,7 +57,7 @@ const ELDTripPlanner: React.FC = () => {
           </div>
 
           {/* Results Tabs */}
-          {(routeData || logSheets.length > 0) && (
+          {/* {(routeData || logSheets.length > 0) && (
             <div className="animate-fade-in">
               <Tabs defaultValue="route" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
@@ -89,6 +89,81 @@ const ELDTripPlanner: React.FC = () => {
                   ))}
                 </TabsContent>
               </Tabs>
+            </div>
+          )} */}
+          {routeData && (
+            <div className="bg-white rounded-lg shadow p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-4">Route Summary</h2>
+              <div className="mb-2">Distance: <b>{routeData.distance} miles</b></div>
+              <div className="mb-2">Estimated Duration: <b>{routeData.duration} hours</b></div>
+              <div className="mb-4">
+                <h3 className="font-semibold">Fuel Stops</h3>
+                <ul className="list-disc ml-6">
+                  {routeData.fuelStops.map((stop: any, idx: number) => (
+                    <li key={idx}>
+                      <b>{stop.name}</b> at {stop.location} (Mile {stop.distanceFromStart})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold">Rest Stops</h3>
+                <ul className="list-disc ml-6">
+                  {routeData.restStops.map((stop: any, idx: number) => (
+                    <li key={idx}>
+                      {stop.location} ({stop.type}, {stop.duration} hrs, Mile {stop.distanceFromStart})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {logSheets.length > 0 && (
+            <div className="space-y-8">
+              {logSheets.map((sheet, idx) => (
+                <div key={idx} className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-semibold mb-2">
+                    Log Sheet for {sheet.date}
+                  </h2>
+                  <div className="mb-2">Driver: <b>{sheet.driverName}</b></div>
+                  <div className="mb-2">Truck #: <b>{sheet.truckNumber}</b></div>
+                  <div className="mb-2">Total Driving: <b>{sheet.totalDriving} hrs</b></div>
+                  <div className="mb-4">Total On Duty: <b>{sheet.totalOnDuty} hrs</b></div>
+                  <table className="w-full text-sm border">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="border px-2 py-1">Time</th>
+                        <th className="border px-2 py-1">Status</th>
+                        <th className="border px-2 py-1">Location</th>
+                        <th className="border px-2 py-1">Odometer</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sheet.logs.map((log: any, i: number) => (
+                        <tr key={i}>
+                          <td className="border px-2 py-1">{log.time}</td>
+                          <td className="border px-2 py-1">{log.status}</td>
+                          <td className="border px-2 py-1">
+                            {typeof log.location === 'string'
+                              ? log.location
+                              : [
+                                log.location.properties?.name,
+                                log.location.properties?.city,
+                                log.location.properties?.state,
+                                log.location.properties?.country,
+                                log.location.properties?.postcode,
+                              ]
+                                .filter(Boolean)
+                                .join(', ') || 'Unknown'}
+                          </td>
+                          <td className="border px-2 py-1">{log.odometer}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
             </div>
           )}
         </div>

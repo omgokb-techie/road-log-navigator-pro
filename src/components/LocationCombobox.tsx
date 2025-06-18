@@ -66,7 +66,8 @@ const LocationCombobox: React.FC<LocationComboboxProps> = ({
           .filter(
             (f: PhotonFeature) =>
               Array.isArray(f.geometry?.coordinates) &&
-              f.geometry.coordinates.length === 2
+              f.geometry.coordinates.length === 2 &&
+              f.properties?.country?.toLowerCase() === 'united states'
           )
           .filter((f: PhotonFeature) => {
             // Create a unique string for each location to filter duplicates
